@@ -195,6 +195,20 @@ FixTemplateSphere::FixTemplateSphere(LAMMPS *lmp, int narg, char **arg) :
             pdf_radius->set_params<RANDOM_CONSTANT>(value);
             iarg += 3;
         }
+
+        else if (strcmp(arg[iarg+1],"gaussian") == 0)
+        {
+        // 要求提供均值和标准差两个参数
+        if (iarg+4 > narg)
+            error->all(FLERR,"Illegal fix particletemplate/sphere command, not enough arguments for gaussian");
+        double mean = atof(arg[iarg+2])*force->cg(atom_type);
+        double stddev = atof(arg[iarg+3])*force->cg(atom_type);
+        if(mean <= 0.0 || stddev <= 0.0)
+            error->all(FLERR,"Illegal fix particletemplate/sphere command, gaussian parameters must be > 0");
+        pdf_radius->set_params<RANDOM_GAUSSIAN>(mean, stddev);
+        iarg += 4;
+        }
+        
         else
             error->fix_error(FLERR,this,"invalid radius random style");
     }
